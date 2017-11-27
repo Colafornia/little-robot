@@ -1,0 +1,33 @@
+{
+  "name": "little-robot",
+  "version": "1.0.0",
+  "description": "some script written by nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MechanicianW/little-robot.git"
+  },
+  "keywords": [
+    "nodejs",
+    "script",
+    "push",
+    "wechat"
+  ],
+  "author": "MechanicianW",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MechanicianW/little-robot/issues"
+  },
+  "homepage": "https://github.com/MechanicianW/little-robot#readme",
+  "dependencies": {
+    "bunyan": "^1.8.12",
+    "express": "^4.16.2",
+    "form-data": "^2.3.1",
+    "node-schedule": "^1.2.5",
+    "pm2": "^2.8.0",
+    "request": "^2.83.0"
+  }
+}
