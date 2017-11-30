@@ -64,9 +64,6 @@ module.exports = [
         title: 'iHardCoder搜狗前端',
         url: 'http://feed.cnblogs.com/blog/u/173153/rss'
     }, {
-        title: 'chunfenglee',
-        url: 'http://chunfenglee.com/atom.xml'
-    }, {
         title: 'JavaScript Weekly',
         url: 'http://javascriptweekly.com/rss/11m9nlg9'
     }, {
@@ -129,9 +126,6 @@ module.exports = [
     }, {
         title: '文蔺',
         url: 'http://www.wemlion.com/atom.xml'
-    }, {
-        title: '水能载舟 亦可赛艇',
-        url: 'https://lengzzz.com/rss'
     }, {
         title: '熊建刚的博客',
         url: 'http://blog.codingplayboy.com/feed/'
