@@ -51,6 +51,10 @@ module.exports = [
         url: 'https://rss.lilydjwg.me/zhihuzhuanlan/mtdpdiancan',
         link: 'https://zhuanlan.zhihu.com/mtdpdiancan'
     }, {
+        title: '前端之巅',
+        url: 'https://rss.lilydjwg.me/zhihuzhuanlan/qianduanzhidian',
+        link: 'https://zhuanlan.zhihu.com/qianduanzhidian'
+    }, {
         title: '颜海镜',
         url: 'https://rss.lilydjwg.me/zhihuzhuanlan/yanhaijing',
         link: 'https://zhuanlan.zhihu.com/yanhaijing'
