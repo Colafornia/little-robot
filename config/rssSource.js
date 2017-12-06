@@ -145,5 +145,45 @@ module.exports = [
     }, {
         title: '阮一峰',
         url: 'http://www.ruanyifeng.com/blog/atom.xml'
+    }, {
+        title: '滴滴前端DDFE',
+        url: 'http://gh-feed.imsun.net/DDFE/DDFE-blog/issues',
+        link: 'https://github.com/DDFE/DDFE-blog/issues'
+    }, {
+        title: 'Riskers一波',
+        url: 'http://gh-feed.imsun.net/riskers/blog/issues',
+        link: 'https://github.com/riskers/blog/issues'
+    }, {
+        title: '一只鱼的笔记',
+        url: 'http://gh-feed.imsun.net/Aaaaaaaty/Blog/issues',
+        link: 'https://github.com/Aaaaaaaty/Blog/issues'
+    }, {
+        title: 'dwqs blog',
+        url: 'http://gh-feed.imsun.net/dwqs/blog/issues',
+        link: 'https://github.com/dwqs/blog/issues'
+    }, {
+        title: 'purplebamboo blog',
+        url: 'http://gh-feed.imsun.net/purplebamboo/blog/issues',
+        link: 'https://github.com/purplebamboo/blog/issues'
+    }, {
+        title: '阿里 jawil blog',
+        url: 'http://gh-feed.imsun.net/jawil/blog/issues',
+        link: 'https://github.com/jawil/blog/issues'
+    }, {
+        title: 'creeperyang blog',
+        url: 'http://gh-feed.imsun.net/creeperyang/blogg/issues',
+        link: 'https://github.com/creeperyang/blogg/issues'
+    }, {
+        title: 'ccforward blog',
+        url: 'http://gh-feed.imsun.net/ccforward/cc/issues',
+        link: 'https://github.com/ccforward/cc/issues'
+    }, {
+        title: 'lcxfs1991 blog',
+        url: 'http://gh-feed.imsun.net/lcxfs1991/blog/issues',
+        link: 'https://github.com/lcxfs1991/blog/issues'
+    }, {
+        title: '百度梁少峰 blog',
+        url: 'http://gh-feed.imsun.net/youngwind/blog/issues',
+        link: 'https://github.com/youngwind/blog/issues'
     }
 ]
