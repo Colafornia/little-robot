@@ -185,5 +185,9 @@ module.exports = [
         title: '百度梁少峰 blog',
         url: 'http://gh-feed.imsun.net/youngwind/blog/issues',
         link: 'https://github.com/youngwind/blog/issues'
+    }, {
+        title: '腾讯吴晓军 yoyoyohamapi',
+        url: 'http://yoyoyohamapi.me/atom.xml',
+        link: 'http://yoyoyohamapi.me'
     }
 ]
