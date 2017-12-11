@@ -22,5 +22,5 @@ API 使用 [pm25](www.pm25.in)
 ## TODO
 
 - [ ] 一并推送天气信息
-- [ ] RSS源维护到 MongoDB 中
+- [x] RSS源维护到 MongoDB 中
 - [ ] 为推送时间的修改和订阅源的添加提供 API
