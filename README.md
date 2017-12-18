@@ -5,9 +5,9 @@
 
 ## 朝阳群众的PM2.5数据推送
 
-早九晚七，推送朝阳区PM2.5数据，避免出门忘带、多带口罩
+早九晚七，推送朝阳区PM2.5数据与天气，避免出门忘带、多带口罩
 
-API 使用 [pm25](www.pm25.in)
+API 使用 [和风天气](https://www.heweather.com)
 
 <img src="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQEh8TwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAydEVvdk53Q2ZlNjAxMDAwMDAwN2cAAgTs3R9aAwQAAAAA" width="150" height="150">
 
