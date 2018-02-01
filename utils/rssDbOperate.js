@@ -7,10 +7,16 @@ const log = bunyan.createLogger({
 
 module.exports = {
     getRssSourceList: getSourceList,
-    insertPushHistory: insertPushHistory
+    insertPushHistory: insertPushHistory,
+    fetchGithubInfo: fetchGithubInfo
 }
 async function getSourceList () {
     let result = await queryRssSource();
+    return result;
+}
+
+async function fetchGithubInfo () {
+    let result = await queryGithubInfo();
     return result;
 }
 
@@ -50,4 +56,18 @@ function insertPushHistory (obj) {
                 collection.insert(obj);
             }
         })
+}
+
+function queryGithubInfo () {
+    return new Promise ((resolve, reject) => {
+        connect()
+            .then(() => {
+                if (db) {
+                    const collection = db.collection('githubInfo');
+                    collection.find({}).toArray(function (err, docs) {
+                        resolve(docs[0]);
+                    })
+                }
+            })
+    })
 }
