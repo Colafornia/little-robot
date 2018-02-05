@@ -6,14 +6,10 @@ module.exports = {
 }
 
 let info = null;
-function createIssue (date, content) {
-    dbOperate.fetchGithubInfo()
-        .then((res) => {
-            if (res) {
-                info = res;
-                requestApi(date, content);
-            }
-        })
+
+async function createIssue (date, content) {
+    info = await dbOperate.fetchGithubInfo();
+    return await requestApi(date, content);
 }
 
 function requestApi (date, content) {
@@ -26,13 +22,18 @@ function requestApi (date, content) {
         body: JSON.stringify({
             title: '新鲜货 [ ' + date + ' ]',
             body: content,
-            labels: ['每日推送']
+            labels: ['Weekly']
         }),
         gzip: true
     }
-    request.post(options, function (error, response, body) {
-        if (!error) {
-            console.log('Created issue done!')
-        }
+    return new Promise ((resolve, reject) => {
+        request.post(options, function (error, response, body) {
+            if (!error) {
+                console.log('Created issue done!');
+                const resp = JSON.parse(response.body);
+                resolve(resp.url);
+            }
+            resolve(null);
+        })
     })
 }
