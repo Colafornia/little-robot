@@ -31,7 +31,7 @@ function requestApi (date, content) {
             if (!error) {
                 console.log('Created issue done!');
                 const resp = JSON.parse(response.body);
-                resolve(resp.url);
+                resolve(resp.html_url || null);
             }
             resolve(null);
         })
