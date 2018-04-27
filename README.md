@@ -5,9 +5,15 @@
 
 ## RSS 新文章推送
 
-每早十点，推送我订阅的 RSS源 24小时内的更新
+<img src="https://s1.ax1x.com/2018/04/27/C3NaDA.md.jpg" width="200">
+
+每早十点，微信推送我订阅的 RSS源 24小时内的更新
 
 目前将RSS源维护在 <del>`config` 文件</del> 服务器的数据库中
+
+每周推送汇总位于 [issues](https://github.com/Colafornia/little-robot/issues)
+
+扫码即可获得推送服务：
 
 <img src="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQFT8TwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyek9QVU5JQ2ZlNjAxMDAwMDAwN1kAAgRGvR9aAwQAAAAA" width="150" height="150">
 
