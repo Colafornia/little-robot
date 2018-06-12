@@ -4,11 +4,12 @@
   "description": "some script written by nodejs",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon start.js",
     "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MechanicianW/little-robot.git"
+    "url": "git+https://github.com/Colafornia/little-robot.git"
   },
   "keywords": [
     "nodejs",
@@ -16,24 +17,35 @@
     "push",
     "wechat"
   ],
-  "author": "MechanicianW",
+  "author": "Colafornia",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MechanicianW/little-robot/issues"
+    "url": "https://github.com/Colafornia/little-robot/issues"
   },
-  "homepage": "https://github.com/MechanicianW/little-robot#readme",
+  "homepage": "https://github.com/Colafornia/little-robot#readme",
   "dependencies": {
     "async": "^2.6.0",
+    "axios": "^0.18.0",
     "bunyan": "^1.8.12",
-    "express": "^4.16.2",
     "form-data": "^2.3.1",
+    "koa": "^2.5.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
     "lodash": "^4.17.4",
     "moment": "^2.19.3",
     "mongodb": "^3.0.0-rc0",
-    "mongoose": "^4.13.6",
+    "mongoose": "^4.13.14",
     "node-schedule": "^1.2.5",
     "pm2": "^2.8.0",
     "request": "^2.83.0",
     "rss-parser": "^2.10.8"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-latest-node": "^1.0.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "nodemon": "^1.17.5"
   }
 }
