@@ -1,12 +1,15 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const Helpers = require('../utils/helpers');
 const PushHistory = mongoose.model('PushHistory');
 
 export const fetchPushHistory = async (ctx, next) => {
-    const list = await PushHistory.find({}) // 数据查询
+    // 数据查询
+    // 倒序查找最近 10 条
+    const list = await PushHistory.find({}).sort({_id:-1}).limit(10);
     if (list.length) {
         ctx.body = {
             success: true,
-            info: list
+            list,
         }
     } else {
         ctx.body = {
@@ -19,7 +22,6 @@ export const insertPushHistory = async (ctx, next) => {
     const opts = ctx.request.body;
     const newRecord = new PushHistory(opts);
     const insertRecord = await newRecord.save();
-    const list = await PushHistory.find({}) // 数据查询
     if (insertRecord) {
         ctx.body = {
             success: true,

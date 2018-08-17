@@ -1,4 +1,6 @@
 const request = require('request');
+const jwt = require('jsonwebtoken');
+
 module.exports = {
     filterEmoji: function (text) {
         return text.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
@@ -10,6 +12,14 @@ module.exports = {
                 text: 'logs',
                 desp: message
             }
+        })
+    },
+    verifyToken: function (token, secretKey) {
+        return jwt.verify(token, secretKey, (err, decoded) => {
+            if (decoded) {
+                return true;
+            }
+            return false;
         })
     }
 }

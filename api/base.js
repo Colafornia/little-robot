@@ -1,15 +1,24 @@
-import axios from 'axios';
-const config = require('../config');
+import service from './index';
 
 class Base {
+    login = params => {
+        return service.get(
+            `/login?name=${params.userName}&pwd=${params.pwd}`,
+            params
+        );
+    }
     fetchSourceList = params => {
-        axios.get(`http://localhost:${config.port}/source`, params);
+        return service.get(`/source`, params);
     }
-    fetchPushHistory = params => {
-        axios.get(`http://localhost:${config.port}/push/history/list`, params);
+    fetchPushHistory = (token) => {
+        return service.get('/push/history/list', { token });
     }
-    insertPushHistory = params => {
-        axios.post(`http://localhost:${config.port}/push/history/insert`, params);
+    insertPushHistory = (params, token) => {
+        return service.post(
+            '/push/history/insert',
+            JSON.stringify(params),
+            {token},
+        );
     }
 }
 
