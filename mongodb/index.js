@@ -3,6 +3,7 @@ const config = require('../config');
 
 require('../models/sources');
 require('../models/pushHistory');
+require('../models/user');
 
 export const database = () => {
     mongoose.set('debug', true)
