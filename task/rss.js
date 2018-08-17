@@ -56,7 +56,9 @@ let pushList = [];
 let count = 0;
 
 // 免扰日
-let silentWeekDays = [6, 0];
+// TODO 正式上线前恢复
+// let silentWeekDays = [6, 0];
+let silentWeekDays = [];
 
 // 周汇总 issue 地址
 let weeklyUrl = '';
@@ -239,7 +241,7 @@ const makeUpMessage = function () {
                 msg += `[${article.title}](${article.link})\n\n`;
             })
         })
-        msg += '历史推送可在[周推送汇总](https://github.com/MechanicianW/little-robot/issues)查看';
+        msg += '历史推送可在[周推送汇总](https://github.com/Colafornia/little-robot/issues)查看';
     }
     return Helpers.filterEmoji(msg);
 }
@@ -279,7 +281,7 @@ const fetchDataCb = (err, result) => {
                     weeklyUrl = res || '';
                 })
         }
-        Helpers.sendLogs(message);
+        Helpers.sendLogs('Koa 版本测试中' + message);
         const allArticles = _.flatten(_.map(pushList, 'list'));
         Base.insertPushHistory({
             type: isWeeklyTask ? 'weekly' : 'daily',
@@ -307,8 +309,8 @@ const launch = function () {
                 pushList = pushList.concat(res);
                 count += res.list.length;
             }
-            // // 设置循环抓取定时器，每隔两分钟抓取一次
-            // fetchInterval = setInterval(fetchRSSUpdate, 120000);
-            // fetchRSSUpdate();
+            // 设置循环抓取定时器，每隔两分钟抓取一次
+            fetchInterval = setInterval(fetchRSSUpdate, 120000);
+            fetchRSSUpdate();
         })
 }
