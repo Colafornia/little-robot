@@ -1,20 +1,25 @@
 const parser = require('rss-parser');
 const moment = require('moment');
+const axios = require('axios');
 const request = require('request');
 const schedule = require('node-schedule');
 const bunyan = require('bunyan');
 const mapLimit = require('async/mapLimit');
-const timeout  = require('async/timeout');
+const timeout = require('async/timeout');
 const jueJinCrawler = require('./juejinCrawler');
 const Helpers = require('../utils/helpers');
-const _  = require('lodash');
+const _ = require('lodash');
 const dbOperate = require('../utils/rssDbOperate');
 const issueOperate = require('../utils/createIssue');
 
+import Base from '../api/base';
+
 
 module.exports = {
-    setPushSchedule: setPushSchedule
+    bootstrap: bootstrap
 }
+
+
 const log = bunyan.createLogger({
     name: 'rss schedule'
 });
@@ -26,11 +31,20 @@ let sourceList = [];
 // 存放待抓取的源列表
 let toFetchList = [];
 
+// 抓取时间
+let fetchStartTime = null;
+
+// 记录中的上次抓取时间
+let lastFetchTime = null;
+
 // 抓取次数
 let fetchTimes = 0;
 
 // 抓取定时器 ID
 let fetchInterval = null;
+
+// Boolean 是否为周汇总推送
+let isWeeklyTask = false;
 
 // Boolean 抓取状态标志
 let done = false;
@@ -41,56 +55,98 @@ let pushList = [];
 // 文章数 count
 let count = 0;
 
-// 抓取的时间间隔
-// TODO: 需要将时间间隔更精确
-let hours = 24;
-
 // 免扰日
 let silentWeekDays = [6, 0];
 
 // 周汇总 issue 地址
 let weeklyUrl = '';
 
-dbOperate.getRssSourceList()
-    .then((res) => {
-        sourceList = res;
-        toFetchList = _.cloneDeep(sourceList);
+// jwt token
+let token = '';
+
+function bootstrap () {
+    // 登录获取 token
+    Base.login({
+        userName: process.argv[3],
+        pwd: process.argv[4],
     })
+    .then((res) => {
+        if (res && res.data && res.data.success) {
+            token = res.data.token;
+            setPushSchedule();
+            // activateFetchTask();
+        }
+    })
+}
 
 function setPushSchedule () {
     schedule.scheduleJob('00 30 09 * * *', () => {
         // 抓取任务
-        log.info('rss schedule fetching fire at '+ new Date());
-        log.info('rss源站共' + sourceList.length);
-        hours = 24;
-        if (moment().weekday() === 1) {
-            hours = 72;
-        }
-        if (sourceList.length && !silentWeekDays.includes(moment().weekday())) {
-            launch();
-        }
+        log.info('rss schedule fetching fire at ' + new Date());
+        isWeeklyTask = false;
+        activateFetchTask();
     });
 
     schedule.scheduleJob('00 00 10 * * *', () => {
         if (sourceList.length && !silentWeekDays.includes(moment().weekday())) {
             // 发送任务
-            log.info('rss schedule delivery fire at '+ new Date());
+            log.info('rss schedule delivery fire at ' + new Date());
+            isWeeklyTask = false;
             if (pushList.length) {
                 let message = makeUpMessage();
                 log.info(message);
-                sendToWeChat(message);
+                // TODO 正式上线前恢复
+                // sendToWeChat(message);
             }
         }
     });
 
-    schedule.scheduleJob('00 00 09 * * 5', () => {
+    schedule.scheduleJob('00 16 10 * * 5', () => {
         if (sourceList.length) {
             // Weekly 抓取任务
-            log.info('rss schedule weekly fire at '+ new Date());
-            hours = 120;
-            launch();
+            log.info('rss schedule weekly fire at ' + new Date());
+            isWeeklyTask = true;
+            activateFetchTask();
         }
     });
+}
+
+function activateFetchTask () {
+    axios.all([Base.fetchSourceList(), Base.fetchPushHistory(token)])
+        .then(axios.spread((source, history) => {
+            // 获取历史信息
+            // 得到上次推送的具体时间与一周内的文章数据
+            if (history && history.data && history.data.list) {
+                handlePushHistory(history.data.list);
+            } else {
+                lastFetchTime = moment().subtract(1, 'days');
+            }
+            if (source.data && source.data.list && source.data.list.length) {
+                handleSouceList(source.data.list);
+            }
+        }));
+}
+
+const handlePushHistory = (list) => {
+    let lastPushItem = null;
+    lastPushItem = list[0];
+    if (isWeeklyTask) {
+        lastPushItem = list.find((item) => item.type === 'weekly');
+    }
+    lastFetchTime = lastPushItem ?
+        lastPushItem.time :
+        moment().subtract(1, 'days');
+}
+
+const handleSouceList = (list) => {
+    sourceList = list;
+    toFetchList = _.cloneDeep(sourceList);
+    log.info('rss源站共' + sourceList.length);
+    if (sourceList.length && !silentWeekDays.includes(moment().weekday())) {
+        fetchStartTime = moment().format('YYYY-MM-DD HH:mm:ss');
+        log.info('rss real fetching time is' + fetchStartTime);
+        launch();
+    }
 }
 
 const fetchRSSUpdate = function () {
@@ -103,8 +159,8 @@ const fetchRSSUpdate = function () {
         // 若抓取次数少于三次，且仍存在未成功抓取的源
         log.info(`第${fetchTimes}次抓取，有 ${toFetchList.length} 篇`);
         // 最大并发数为10，超时时间设置为 5000ms
-        return mapLimit(toFetchList, 10, (source, callback) =>{
-            timeout(parseCheck(source, callback), 5000);
+        return mapLimit(toFetchList, 15, (source, callback) => {
+            timeout(parseCheck(source, callback), 8000);
         })
     }
     log.info('fetching is done');
@@ -114,9 +170,9 @@ const fetchRSSUpdate = function () {
     return fetchDataCb();
 }
 
-const parseFunction = function  (source) {
-    return new Promise ((resolve, reject) => {
-        parser.parseURL(source.url, function(err, parsed) {
+const parseFunction = function (source) {
+    return new Promise((resolve, reject) => {
+        parser.parseURL(source.url, function (err, parsed) {
             if (err) {
                 log.warn(`${source.title}出错：${err}`);
                 reject(err);
@@ -132,20 +188,20 @@ async function parseCheck (source, callback) {
     try {
         parsed = await parseFunction(source);
         if (parsed && parsed.feed && parsed.feed.entries.length &&
-            updatedInLastWeek(parsed.feed.entries).length) {
-                // 筛出更新时间满足条件的文章
-                // RSS 源的文章限制最多五篇
-                // 避免由于源不稳定造成的推送过多
-                let articlesUpdatedInLastWeek = updatedInLastWeek(parsed.feed.entries).slice(0, 5);
-                log.info(`${source.title} 今天有新文章 ${articlesUpdatedInLastWeek.length} 篇`)
-                const result = Object.assign({}, source, {list: articlesUpdatedInLastWeek});
-                count = count + articlesUpdatedInLastWeek.length;
-                pushList.push(result);
+            UpdateAfterLastPush(parsed.feed.entries).length) {
+            // 筛出更新时间满足条件的文章
+            // RSS 源的文章限制最多五篇
+            // 避免由于源不稳定造成的推送过多
+            let articlesUpdateAfterLastPush = UpdateAfterLastPush(parsed.feed.entries).slice(0, 5);
+            log.info(`${source.title} 今天有新文章 ${articlesUpdateAfterLastPush.length} 篇`)
+            const result = Object.assign({}, source, { list: articlesUpdateAfterLastPush });
+            count = count + articlesUpdateAfterLastPush.length;
+            pushList.push(result);
         } else {
             log.info(`${source.title} 今天有新文章0篇`);
         }
         // 删掉 toFetchList 中已抓取成功的源
-        const index = _.findIndex(toFetchList, (item) =>  item && item.url === source.url);
+        const index = _.findIndex(toFetchList, (item) => item && item.url === source.url);
         toFetchList[index] = null;
         callback();
     } catch (e) {
@@ -153,15 +209,21 @@ async function parseCheck (source, callback) {
     }
 }
 
-const updatedInLastWeek = function (entries) {
+const UpdateAfterLastPush = function (entries) {
     let result = [];
     let list = entries.concat([]);
-    while (list[0] && list[0].pubDate && moment(new Date (list[0].pubDate)).isAfter(moment().subtract(hours, 'hours'))) {
+    while (list[0] && list[0].pubDate && isPubDateMatch(list[0].pubDate)) {
         result.push(list[0]);
         list.shift();
     }
     return result;
 }
+
+const isPubDateMatch = (pubDate) => {
+    const timestamp = Date.parse(pubDate);
+    return moment(timestamp).isAfter(lastFetchTime);
+}
+
 const makeUpMessage = function () {
     let msg = '';
     if (!pushList.length) {
@@ -191,7 +253,6 @@ const sendToWeChat = function (message) {
             desp: message
         }
     }, function (error, response, body) {
-        dbOperate.getRssSourceList();
         log.error('error:', error);
         log.info('statusCode:', response && response.statusCode);
         log.info('body:', body);
@@ -212,18 +273,20 @@ const fetchDataCb = (err, result) => {
         // 按抓取源权重排序
         pushList = _.orderBy(pushList, 'weight', 'desc');
         let message = makeUpMessage();
-        if (moment().weekday() === 5 && hours > 100) {
-            issueOperate.createIssue(`${moment().subtract(hours, 'hours').format('YYYY-MM-DD')} ~ ${moment().format('YYYY-MM-DD')}`, message)
+        if (moment().weekday() === 5 && isWeeklyTask) {
+            issueOperate.createIssue(`${moment().subtract(7, 'days').format('YYYY-MM-DD')} ~ ${moment().format('YYYY-MM-DD')}`, message)
                 .then((res) => {
-                    console.log(res);
                     weeklyUrl = res || '';
                 })
         }
         Helpers.sendLogs(message);
-        dbOperate.insertPushHistory({
-            time: moment().format('YYYY-MM-DD'),
-            content: message
-        });
+        const allArticles = _.flatten(_.map(pushList, 'list'));
+        Base.insertPushHistory({
+            type: isWeeklyTask ? 'weekly' : 'daily',
+            time: fetchStartTime,
+            content: message,
+            articles: _.map(allArticles, (arctile) => _.pick(arctile, ['title', 'link']))
+        }, token);
     }
     if (err) {
         log.warn(err);
@@ -237,13 +300,15 @@ const launch = function () {
     toFetchList = _.cloneDeep(sourceList);
     done = false;
     fetchTimes = 0;
-    jueJinCrawler.fetchAndFilterJueJinUpdate(hours)
+    jueJinCrawler.fetchAndFilterJueJinUpdate(fetchStartTime, lastFetchTime)
         .then((res) => {
             log.info(`掘金 今天有新文章${res.list.length}篇`);
-            pushList = pushList.concat(res);
-            count += res.list.length;
-            // 设置循环抓取定时器，每隔两分钟抓取一次
-            fetchInterval = setInterval(fetchRSSUpdate, 120000);
-            fetchRSSUpdate();
+            if (res.list && res.list.length) {
+                pushList = pushList.concat(res);
+                count += res.list.length;
+            }
+            // // 设置循环抓取定时器，每隔两分钟抓取一次
+            // fetchInterval = setInterval(fetchRSSUpdate, 120000);
+            // fetchRSSUpdate();
         })
 }
