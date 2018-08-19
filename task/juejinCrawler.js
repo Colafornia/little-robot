@@ -27,10 +27,8 @@ async function requestApi () {
     isWeeklyTask = Number(gapDays) > 5;
     try {
         articles = await requestFunc(apiUrl);
-        console.log('isWeeklyTask------',isWeeklyTask)
         if (isWeeklyTask) {
             const lastTime = articles[articles.length - 1].createdAt;
-            console.log(`${apiUrl}&before=${encodeURIComponent(lastTime)}`)
             let moreAtricles = await requestFunc(`${apiUrl}&before=${encodeURIComponent(lastTime)}`);
             articles = articles.concat(moreAtricles);
         }
@@ -39,7 +37,6 @@ async function requestApi () {
     }
     if (articles.length) {
         results = makeUpResults();
-        console.log(results);
         return {
             title: '掘金前端',
             link: 'https://juejin.im/timeline',
@@ -63,9 +60,6 @@ async function requestFunc (url) {
 
 function filterArticlesByDateAndCollection () {
     const threshold = isWeeklyTask > 100 ? 150 : 70;
-    console.log(startTime)
-    console.log(endTime)
-    console.log(articles.slice(0, 5))
     let results = articles.filter((article) => {
         // 偏移值五小时，避免筛掉质量好但是由于刚刚发布收藏较少的文章
         return moment(article.createdAt).isAfter(moment(startTime).subtract(5, 'hours'))
