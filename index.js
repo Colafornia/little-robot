@@ -2,7 +2,7 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const jwtKoa = require('koa-jwt');
 const config = require('./config');
-import { bootstrap } from './task/rss';
+import { setPushSchedule } from './task/rss';
 import { database } from './mongodb';
 import router from './routes';
 
@@ -25,5 +25,5 @@ app
     .use(router.allowedMethods())
     .listen(config.port, () => {
         console.log(`Server started, please visit: http://127.0.0.1:${config.port}`);
-        bootstrap();
+        setPushSchedule();
     });

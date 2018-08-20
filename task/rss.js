@@ -16,7 +16,7 @@ import Base from '../api/base';
 
 
 module.exports = {
-    bootstrap: bootstrap
+    setPushSchedule: setPushSchedule
 }
 
 
@@ -66,21 +66,6 @@ let weeklyUrl = '';
 // jwt token
 let token = '';
 
-function bootstrap () {
-    // 登录获取 token
-    Base.login({
-        userName: process.argv[3],
-        pwd: process.argv[4],
-    })
-    .then((res) => {
-        if (res && res.data && res.data.success) {
-            token = res.data.token;
-            setPushSchedule();
-            // activateFetchTask();
-        }
-    })
-}
-
 function setPushSchedule () {
     schedule.scheduleJob('00 30 09 * * *', () => {
         // 抓取任务
@@ -114,6 +99,20 @@ function setPushSchedule () {
 }
 
 function activateFetchTask () {
+    // 登录获取 token
+    Base.login({
+        userName: process.argv[3],
+        pwd: process.argv[4],
+    })
+    .then((res) => {
+        if (res && res.data && res.data.success) {
+            token = res.data.token;
+            fetchData();
+        }
+    })
+}
+
+const fetchData = () => {
     axios.all([Base.fetchSourceList(), Base.fetchPushHistory(token)])
         .then(axios.spread((source, history) => {
             // 获取历史信息
