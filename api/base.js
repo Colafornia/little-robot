@@ -20,6 +20,9 @@ class Base {
             {token},
         );
     }
+    isHoliday = (today) => {
+        return service.get(`http://api.goseek.cn/Tools/holiday?date=${today}`)
+    }
 }
 
 export default new Base();

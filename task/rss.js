@@ -58,10 +58,8 @@ let historyArticles = [];
 // 文章数 count
 let count = 0;
 
-// 免扰日
-// TODO 正式上线前恢复
-// let silentWeekDays = [6, 0];
-let silentWeekDays = [];
+// 是否为休息日，节假日
+let isHoliday = false;
 
 // 周汇总 issue 地址
 let weeklyUrl = '';
@@ -79,7 +77,7 @@ function setPushSchedule () {
     });
 
     schedule.scheduleJob('00 00 10 * * *', () => {
-        if (sourceList.length && !silentWeekDays.includes(moment().weekday())) {
+        if (sourceList.length && !isHoliday) {
             // 发送任务
             log.info('rss schedule delivery fire at ' + new Date());
             isWeeklyTask = false;
@@ -102,7 +100,12 @@ function setPushSchedule () {
     });
 }
 
-function activateFetchTask () {
+async function activateFetchTask () {
+    await isTodayHoliday();
+    if (isHoliday) {
+        Helpers.sendLogs('今日休息');
+        return;
+    }
     // 登录获取 token
     Base.login({
         userName: process.argv[3],
@@ -134,6 +137,16 @@ const fetchData = () => {
         }));
 }
 
+const isTodayHoliday = () => {
+    const today = moment().format('YYYYMMDD');
+    return Base.isHoliday(today)
+        .then(({data}) => {
+            // 工作日对应结果为 0, 休息日对应结果为 1, 节假日对应的结果为 2
+            isHoliday = Boolean(data && data.data);
+            return isHoliday;
+        })
+}
+
 const handlePushHistory = (list) => {
     let lastPushItem = null;
     lastPushItem = list[0];
@@ -152,7 +165,7 @@ const handleSouceList = (list) => {
     sourceList = list;
     toFetchList = _.cloneDeep(sourceList);
     log.info('rss源站共' + sourceList.length);
-    if (sourceList.length && !silentWeekDays.includes(moment().weekday())) {
+    if (sourceList.length && !isHoliday) {
         fetchStartTime = moment().format('YYYY-MM-DD HH:mm:ss');
         log.info('rss real fetching time is' + fetchStartTime);
         launch();
