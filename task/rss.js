@@ -52,6 +52,9 @@ let done = false;
 // 筛选过，待发送的推送数据列表
 let pushList = [];
 
+// 近期推送文章数据，用于去重
+let historyArticles = [];
+
 // 文章数 count
 let count = 0;
 
@@ -67,7 +70,8 @@ let weeklyUrl = '';
 let token = '';
 
 function setPushSchedule () {
-    schedule.scheduleJob('00 30 09 * * *', () => {
+    // TODO 正式上线前恢复为 09:30
+    schedule.scheduleJob('00 00 09 * * *', () => {
         // 抓取任务
         log.info('rss schedule fetching fire at ' + new Date());
         isWeeklyTask = false;
@@ -120,7 +124,9 @@ const fetchData = () => {
             if (history && history.data && history.data.list) {
                 handlePushHistory(history.data.list);
             } else {
+                // 获取出错则默认设置昨天为上次推送时间，历史文章数据为空
                 lastFetchTime = moment().subtract(1, 'days');
+                historyArticles = [];
             }
             if (source.data && source.data.list && source.data.list.length) {
                 handleSouceList(source.data.list);
@@ -131,7 +137,10 @@ const fetchData = () => {
 const handlePushHistory = (list) => {
     let lastPushItem = null;
     lastPushItem = list[0];
+    historyArticles = _.map(_.flatMap(list, 'articles'), 'title');
+    log.info('近期推送文章题目', historyArticles);
     if (isWeeklyTask) {
+        historyArticles = []; // 周汇总无需统计历史，无需去重
         lastPushItem = list.find((item) => item.type === 'weekly');
     }
     lastFetchTime = lastPushItem ?
@@ -159,7 +168,7 @@ const fetchRSSUpdate = function () {
     if (toFetchList.length && fetchTimes < 4) {
         // 若抓取次数少于三次，且仍存在未成功抓取的源
         log.info(`第${fetchTimes}次抓取，有 ${toFetchList.length} 篇`);
-        // 最大并发数为10，超时时间设置为 5000ms
+        // 原最大并发数为20，超时时间设置为 5000ms
         return mapLimit(toFetchList, 15, (source, callback) => {
             timeout(parseCheck(source, callback), 8000);
         })
@@ -217,6 +226,12 @@ const UpdateAfterLastPush = function (entries) {
         result.push(list[0]);
         list.shift();
     }
+    // 去重，历史数据中存在的就过滤掉
+    if (_.find(result, (art) => historyArticles.includes(art.title))) {
+        let hit = _.find(result, (art) => historyArticles.includes(art.title));
+        log.info('发现重复文章', hit.title);
+    }
+    result = _.filter(result, (art) => !historyArticles.includes(art.title));
     return result;
 }
 
@@ -274,14 +289,15 @@ const fetchDataCb = (err, result) => {
         // 按抓取源权重排序
         pushList = _.orderBy(pushList, 'weight', 'desc');
         let message = makeUpMessage();
-        if (moment().weekday() === 5 && isWeeklyTask) {
-            issueOperate.createIssue(`${moment().subtract(7, 'days').format('YYYY-MM-DD')} ~ ${moment().format('YYYY-MM-DD')}`, message)
-                .then((res) => {
-                    weeklyUrl = res || '';
-                })
-        }
+        // TODO 上线前恢复
+        // if (isWeeklyTask) {
+        //     issueOperate.createIssue(`${moment().subtract(7, 'days').format('YYYY-MM-DD')} ~ ${moment().format('YYYY-MM-DD')}`, message)
+        //         .then((res) => {
+        //             weeklyUrl = res || '';
+        //         })
+        // }
         Helpers.sendLogs('Koa 版本测试中' + message);
-        const allArticles = _.flatten(_.map(pushList, 'list'));
+        const allArticles = _.flatMap(pushList, 'list');
         Base.insertPushHistory({
             type: isWeeklyTask ? 'weekly' : 'daily',
             time: fetchStartTime,
@@ -303,10 +319,14 @@ const launch = function () {
     fetchTimes = 0;
     jueJinCrawler.fetchAndFilterJueJinUpdate(fetchStartTime, lastFetchTime)
         .then((res) => {
-            log.info(`掘金 今天有新文章${res.list.length}篇`);
             if (res.list && res.list.length) {
-                pushList = pushList.concat(res);
-                count += res.list.length;
+                let result = res;
+                let articles = res.list;
+                articles = _.filter(articles, (art) => !historyArticles.includes(art.title));
+                result.list = articles;
+                log.info(`掘金 今天有新文章${articles.length}篇`);
+                pushList = pushList.concat(result);
+                count += articles.length;
             }
             // 设置循环抓取定时器，每隔两分钟抓取一次
             fetchInterval = setInterval(fetchRSSUpdate, 120000);
