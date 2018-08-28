@@ -24,6 +24,10 @@
   "homepage": "https://github.com/MechanicianW/little-robot#readme",
   "dependencies": {
     "async": "^2.6.0",
+    "babel-core": "^6.26.3",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-latest-node": "^1.0.0",
+    "babel-preset-stage-3": "^6.24.1",
     "bunyan": "^1.8.12",
     "express": "^4.16.2",
     "form-data": "^2.3.1",
