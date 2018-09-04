@@ -69,7 +69,7 @@ let token = '';
 
 function setPushSchedule () {
     // TODO 正式上线前恢复为 09:30
-    schedule.scheduleJob('00 00 09 * * *', () => {
+    schedule.scheduleJob('00 15 09 * * *', () => {
         // 抓取任务
         log.info('rss schedule fetching fire at ' + new Date());
         isWeeklyTask = false;
@@ -86,11 +86,12 @@ function setPushSchedule () {
                 log.info(message);
                 // TODO 正式上线前恢复
                 // sendToWeChat(message);
+                Helpers.sendLogs('Koa 版本正式发送' + message);
             }
         }
     });
 
-    schedule.scheduleJob('00 16 10 * * 5', () => {
+    schedule.scheduleJob('00 00 09 * * 5', () => {
         if (sourceList.length) {
             // Weekly 抓取任务
             log.info('rss schedule weekly fire at ' + new Date());
@@ -132,7 +133,7 @@ const fetchData = () => {
                 historyArticles = [];
             }
             if (source.data && source.data.list && source.data.list.length) {
-                handleSouceList(source.data.list);
+                handleSourceList(source.data.list);
             }
         }));
 }
@@ -161,7 +162,7 @@ const handlePushHistory = (list) => {
         moment().subtract(1, 'days');
 }
 
-const handleSouceList = (list) => {
+const handleSourceList = (list) => {
     sourceList = list;
     toFetchList = _.cloneDeep(sourceList);
     log.info('rss源站共' + sourceList.length);
@@ -235,16 +236,21 @@ async function parseCheck (source, callback) {
 const UpdateAfterLastPush = function (entries) {
     let result = [];
     let list = entries.concat([]);
+    const allArticles = _.flatMap(pushList, 'list');
+    const allArticlesTitle = _.map(allArticles, 'title');
     while (list[0] && list[0].pubDate && isPubDateMatch(list[0].pubDate)) {
         result.push(list[0]);
         list.shift();
     }
-    // 去重，历史数据中存在的就过滤掉
-    if (_.find(result, (art) => historyArticles.includes(art.title))) {
-        let hit = _.find(result, (art) => historyArticles.includes(art.title));
+    // 去重，历史数据查重，本次抓取数据查重
+    if (_.find(result, (art) => historyArticles.includes(art.title) ||
+        allArticlesTitle.includes(art.title))) {
+        let hit = _.find(result, (art) => historyArticles.includes(art.title) ||
+        allArticlesTitle.includes(art.title));
         log.info('发现重复文章', hit.title);
     }
-    result = _.filter(result, (art) => !historyArticles.includes(art.title));
+    result = _.filter(result, (art) => !historyArticles.includes(art.title) &&
+    !allArticlesTitle.includes(art.title));
     return result;
 }
 
@@ -309,13 +315,13 @@ const fetchDataCb = (err, result) => {
         //             weeklyUrl = res || '';
         //         })
         // }
-        Helpers.sendLogs('Koa 版本测试中' + message);
+        Helpers.sendLogs('Koa 版本 log' + message);
         const allArticles = _.flatMap(pushList, 'list');
         Base.insertPushHistory({
             type: isWeeklyTask ? 'weekly' : 'daily',
             time: fetchStartTime,
             content: message,
-            articles: _.map(allArticles, (arctile) => _.pick(arctile, ['title', 'link']))
+            articles: _.map(allArticles, (article) => _.pick(article, ['title', 'link']))
         }, token);
     }
     if (err) {
@@ -335,6 +341,7 @@ const launch = function () {
             if (res.list && res.list.length) {
                 let result = res;
                 let articles = res.list;
+                // 掘金数据查重过滤
                 articles = _.filter(articles, (art) => !historyArticles.includes(art.title));
                 result.list = articles;
                 log.info(`掘金 今天有新文章${articles.length}篇`);
