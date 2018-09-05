@@ -13,13 +13,5 @@ module.exports = {
                 desp: message
             }
         })
-    },
-    verifyToken: function (token, secretKey) {
-        return jwt.verify(token, secretKey, (err, decoded) => {
-            if (decoded) {
-                return true;
-            }
-            return false;
-        })
     }
 }

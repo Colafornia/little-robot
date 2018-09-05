@@ -9,9 +9,6 @@ const timeout = require('async/timeout');
 const jueJinCrawler = require('./juejinCrawler');
 const Helpers = require('../utils/helpers');
 const _ = require('lodash');
-const dbOperate = require('../utils/rssDbOperate');
-const issueOperate = require('../utils/createIssue');
-
 import Base from '../api/base';
 
 
@@ -68,8 +65,7 @@ let weeklyUrl = '';
 let token = '';
 
 function setPushSchedule () {
-    // TODO 正式上线前恢复为 09:30
-    schedule.scheduleJob('00 15 09 * * *', () => {
+    schedule.scheduleJob('00 30 09 * * *', () => {
         // 抓取任务
         log.info('rss schedule fetching fire at ' + new Date());
         isWeeklyTask = false;
@@ -84,9 +80,7 @@ function setPushSchedule () {
             if (pushList.length) {
                 let message = makeUpMessage();
                 log.info(message);
-                // TODO 正式上线前恢复
-                // sendToWeChat(message);
-                Helpers.sendLogs('Koa 版本正式发送' + message);
+                sendToWeChat(message);
             }
         }
     });
@@ -308,13 +302,18 @@ const fetchDataCb = (err, result) => {
         // 按抓取源权重排序
         pushList = _.orderBy(pushList, 'weight', 'desc');
         let message = makeUpMessage();
-        // TODO 上线前恢复
-        // if (isWeeklyTask) {
-        //     issueOperate.createIssue(`${moment().subtract(7, 'days').format('YYYY-MM-DD')} ~ ${moment().format('YYYY-MM-DD')}`, message)
-        //         .then((res) => {
-        //             weeklyUrl = res || '';
-        //         })
-        // }
+        if (isWeeklyTask) {
+            const date = `${moment(lastFetchTime).add(1, 'days').format('YYYY-MM-DD')} ~ ${moment().format('YYYY-MM-DD')}`;
+            const user = process.argv[3];
+            const pwd = process.argv[4];
+            Base.createIssue(user, pwd, date, message)
+                .then((res) => {
+                    if (res && res.data) {
+                        log.info(res.data);
+                        weeklyUrl = res.data.html_url || '';
+                    }
+                })
+        }
         Helpers.sendLogs('Koa 版本 log' + message);
         const allArticles = _.flatMap(pushList, 'list');
         Base.insertPushHistory({
