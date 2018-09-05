@@ -5,7 +5,7 @@
 
 ## RSS 新文章推送
 
-<img src="https://s1.ax1x.com/2018/04/27/C3NaDA.md.jpg" width="320">
+<img src="https://s1.ax1x.com/2018/04/27/C3NaDA.md.jpg" width="300" >
 
 工作日每早十点，微信推送我订阅的 RSS源 24小时内的更新
 
@@ -17,7 +17,7 @@
 
 **扫码即可获得推送服务：**
 
-<img src="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQFT8TwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyek9QVU5JQ2ZlNjAxMDAwMDAwN1kAAgRGvR9aAwQAAAAA" width="200">
+<img src="https://i.loli.net/2018/09/05/5b8fa082db070.png" width="250">
 
 ## TODO
 
