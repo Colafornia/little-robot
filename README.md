@@ -13,16 +13,19 @@
 
 每周推送汇总位于 [issues](https://github.com/Colafornia/little-robot/issues)
 
+目前订阅源主要为前端资讯，均为个人口味，欢迎新的订阅源推荐
+
 **扫码即可获得推送服务：**
 
 <img src="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQFT8TwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyek9QVU5JQ2ZlNjAxMDAwMDAwN1kAAgRGvR9aAwQAAAAA" width="200">
 
 ## TODO
 
-- [x] 一并推送天气信息
 - [x] RSS源维护到 MongoDB 中
 - [x] 循环抓取，避免源不稳定引发的问题
 - [x] 汇总历史到 issue
-- [ ] 简单的文章去重
-- [ ] 为推送时间的修改和订阅源的添加提供 API
-- [ ] 精准设置 RSS 推送间隔时间
+- [x] 简单的文章去重
+- [x] 搭建 Koa Server
+- [x] 精准设置 RSS 推送间隔时间
+- [x] 法定假日，双休日均不推送
+- [ ] 提供推送历史浏览页面
