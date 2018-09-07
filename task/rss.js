@@ -144,9 +144,9 @@ const isTodayHoliday = () => {
 
 const handlePushHistory = (list) => {
     let lastPushItem = null;
-    lastPushItem = list[0];
-    historyArticles = _.map(_.flatMap(list, 'articles'), 'title');
-    log.info('近期推送文章题目', historyArticles);
+    lastPushItem = list.find((item) => item.type !== 'weekly');
+    const historyList = list.filter((item) => item.type !== 'weekly')
+    historyArticles = _.map(_.flatMap(historyList, 'articles'), 'title');
     if (isWeeklyTask) {
         historyArticles = []; // 周汇总无需统计历史，无需去重
         lastPushItem = list.find((item) => item.type === 'weekly');
@@ -154,6 +154,7 @@ const handlePushHistory = (list) => {
     lastFetchTime = lastPushItem ?
         lastPushItem.time :
         moment().subtract(1, 'days');
+    log.info('上次推送时间', lastFetchTime)
 }
 
 const handleSourceList = (list) => {
