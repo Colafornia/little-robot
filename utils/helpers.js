@@ -1,5 +1,4 @@
 const request = require('request');
-const jwt = require('jsonwebtoken');
 
 module.exports = {
     filterEmoji: function (text) {

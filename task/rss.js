@@ -64,7 +64,11 @@ let weeklyUrl = '';
 // jwt token
 let token = '';
 
+// 微信正式推送 sendKey
+let sendKey = null;
+
 function setPushSchedule () {
+    activateFetchTask()
     schedule.scheduleJob('00 30 09 * * *', () => {
         // 抓取任务
         log.info('rss schedule fetching fire at ' + new Date());
@@ -109,6 +113,7 @@ async function activateFetchTask () {
     .then((res) => {
         if (res && res.data && res.data.success) {
             token = res.data.token;
+            sendKey = res.data.sendKey;
             fetchData();
         }
     })
@@ -277,7 +282,7 @@ const makeUpMessage = function () {
 
 const sendToWeChat = function (message) {
     request.post({
-        url: 'https://pushbear.ftqq.com/sub?sendkey=1569-b7bcd67b825bb46ece65ce8ed68d045f',
+        url: `https://pushbear.ftqq.com/sub?sendkey=${sendKey}`,
         form: {
             text: '今日推送',
             desp: message

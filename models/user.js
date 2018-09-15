@@ -10,7 +10,11 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+    sendKey: {
+        type: String,
+        required: true,
+    },
 }, { collection: 'githubInfo' })
 
 module.exports = mongoose.model('User', UserSchema);

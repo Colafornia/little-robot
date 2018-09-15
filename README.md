@@ -3,6 +3,8 @@
 
 每天由定时任务通过 [PushBear](https://pushbear.ftqq.com/admin/#/) 推送到微信
 
+更多关于本项目的信息可参考[博客](https://blog.colafornia.me/post/2018/the-beginning-of-little-robot/)
+
 ## RSS 新文章推送
 
 <img src="https://s1.ax1x.com/2018/04/27/C3NaDA.md.jpg" width="300" >

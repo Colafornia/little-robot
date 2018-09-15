@@ -5,11 +5,11 @@ const User = mongoose.model('User');
 
 export const login = async (ctx, next) => {
     const params = ctx.query;
-    const user = await User.findOne({
+    const userInfo = await User.findOne({
         user: params.name,
         pwd: params.pwd,
     });
-    if (user) {
+    if (userInfo) {
         const variableToken = {
             random: Math.random().toString().slice(2, 8),
         }
@@ -18,7 +18,8 @@ export const login = async (ctx, next) => {
             success: true,
             message: '获取token成功',
             code: 200,
-            token
+            sendKey: userInfo.sendKey,
+            token,
         }
     } else {
         ctx.body = {
