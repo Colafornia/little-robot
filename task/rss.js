@@ -68,7 +68,6 @@ let token = '';
 let sendKey = null;
 
 function setPushSchedule () {
-    activateFetchTask()
     schedule.scheduleJob('00 30 09 * * *', () => {
         // 抓取任务
         log.info('rss schedule fetching fire at ' + new Date());
