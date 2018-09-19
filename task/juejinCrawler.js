@@ -29,8 +29,8 @@ async function requestApi () {
         articles = await requestFunc(apiUrl);
         if (isWeeklyTask) {
             const lastTime = articles[articles.length - 1].createdAt;
-            let moreAtricles = await requestFunc(`${apiUrl}&before=${encodeURIComponent(lastTime)}`);
-            articles = articles.concat(moreAtricles);
+            let moreArticles = await requestFunc(`${apiUrl}&before=${encodeURIComponent(lastTime)}`);
+            articles = articles.concat(moreArticles);
         }
     } catch (e) {
         console.log('error' + e);
@@ -59,14 +59,14 @@ async function requestFunc (url) {
 }
 
 function filterArticlesByDateAndCollection () {
-    const threshold = isWeeklyTask > 100 ? 150 : 70;
+    const threshold = isWeeklyTask ? 150 : 70;
     let results = articles.filter((article) => {
         // 偏移值五小时，避免筛掉质量好但是由于刚刚发布收藏较少的文章
         return moment(article.createdAt).isAfter(moment(startTime).subtract(5, 'hours'))
             && moment(article.createdAt).isBefore(moment(endTime).subtract(5, 'hours'))
             && article.collectionCount > threshold;
     });
-    if (isWeeklyTask > 100) {
+    if (isWeeklyTask) {
         return results.slice(0, 10);
     }
     return results.slice(0, 8);
