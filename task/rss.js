@@ -64,8 +64,8 @@ let weeklyUrl = '';
 // jwt token
 let token = '';
 
-// 微信正式推送 sendKey
-let sendKey = null;
+// 微信与 telegram 的相关 token
+let tokenStuff = null;
 
 function setPushSchedule () {
     schedule.scheduleJob('00 30 09 * * *', () => {
@@ -84,6 +84,7 @@ function setPushSchedule () {
                 let message = makeUpMessage();
                 log.info(message);
                 sendToWeChat(message);
+                sendToTelegram(message);
             }
         }
     });
@@ -112,7 +113,11 @@ async function activateFetchTask () {
     .then((res) => {
         if (res && res.data && res.data.success) {
             token = res.data.token;
-            sendKey = res.data.sendKey;
+            tokenStuff = {
+                sendKey: res.data.sendKey,
+                chatId: res.data.chatId,
+                botToken: res.data.botToken,
+            };
             fetchData();
         }
     })
@@ -281,10 +286,25 @@ const makeUpMessage = function () {
 
 const sendToWeChat = function (message) {
     request.post({
-        url: `https://pushbear.ftqq.com/sub?sendkey=${sendKey}`,
+        url: `https://pushbear.ftqq.com/sub?sendkey=${tokenStuff.sendKey}`,
         form: {
             text: '今日推送',
-            desp: message
+            desp: message,
+        }
+    }, function (error, response, body) {
+        log.error('error:', error);
+        log.info('statusCode:', response && response.statusCode);
+        log.info('body:', body);
+    });
+}
+
+const sendToTelegram = (message) => {
+    request.post({
+        url: `https://api.telegram.org/bot${tokenStuff.botToken}/sendMessage`,
+        form: {
+            chat_id: tokenStuff.chatId,
+            parse_mode: "MarkDown",
+            text: message
         }
     }, function (error, response, body) {
         log.error('error:', error);
