@@ -113,10 +113,11 @@ async function activateFetchTask () {
     .then((res) => {
         if (res && res.data && res.data.success) {
             token = res.data.token;
+            const user = res.data.userInfo;
             tokenStuff = {
-                sendKey: res.data.sendKey,
-                chatId: res.data.chatId,
-                botToken: res.data.botToken,
+                sendKey: user.sendKey,
+                chatId: user.chatId,
+                botToken: user.botToken,
             };
             fetchData();
         }
@@ -301,11 +302,11 @@ const sendToWeChat = function (message) {
 const sendToTelegram = (message) => {
     request.post({
         url: `https://api.telegram.org/bot${tokenStuff.botToken}/sendMessage`,
-        form: {
+        body: {
             chat_id: tokenStuff.chatId,
             parse_mode: "MarkDown",
             text: message
-        }
+        },
     }, function (error, response, body) {
         log.error('error:', error);
         log.info('statusCode:', response && response.statusCode);

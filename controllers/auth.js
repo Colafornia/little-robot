@@ -18,7 +18,7 @@ export const login = async (ctx, next) => {
             success: true,
             message: '获取token成功',
             code: 200,
-            sendKey: userInfo.sendKey,
+            userInfo,
             token,
         }
     } else {

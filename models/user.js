@@ -15,6 +15,14 @@ const UserSchema = new Schema({
         type: String,
         required: true,
     },
+    botToken: {
+        type: String,
+        required: true,
+    },
+    chatId: {
+        type: String,
+        required: true,
+    },
 }, { collection: 'githubInfo' })
 
 module.exports = mongoose.model('User', UserSchema);
