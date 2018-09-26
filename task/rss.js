@@ -302,7 +302,7 @@ const sendToWeChat = function (message) {
 const sendToTelegram = (message) => {
     request.post({
         url: `https://api.telegram.org/bot${tokenStuff.botToken}/sendMessage`,
-        body: {
+        form: {
             chat_id: tokenStuff.chatId,
             parse_mode: "MarkDown",
             text: message
