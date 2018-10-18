@@ -363,7 +363,7 @@ const launch = function () {
     fetchTimes = 0;
     jueJinCrawler.fetchAndFilterJueJinUpdate(fetchStartTime, lastFetchTime)
         .then((res) => {
-            if (res.list && res.list.length) {
+            if (res && res.list && res.list.length) {
                 let result = res;
                 let articles = res.list;
                 // 掘金数据查重过滤

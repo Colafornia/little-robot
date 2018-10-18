@@ -2,7 +2,7 @@ import axios from 'axios';
 const config = require('../config');
 const Instance = axios.create({
     baseURL: `http://localhost:${config.port}/api`,
-    timeout: 3000,
+    // timeout: 3000,
     headers: {
         post: {
             'Content-Type': 'application/json',

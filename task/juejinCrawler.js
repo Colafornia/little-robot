@@ -13,7 +13,7 @@ let isWeeklyTask = false;
 let endTime = null;
 let startTime = null;
 async function fetchData (now, lastTaskTime) {
-    let results = [];
+    let results = null;
     endTime = now;
     startTime = lastTaskTime;
     results = await requestApi();
@@ -22,8 +22,7 @@ async function fetchData (now, lastTaskTime) {
 
 async function requestApi () {
     let results = [];
-    const diff = moment(endTime).diff(startTime);
-    const gapDays = moment.utc(1036800000).format('DD');
+    const gapDays = moment(endTime).diff(startTime, 'days');
     isWeeklyTask = Number(gapDays) > 5;
     try {
         articles = await requestFunc(apiUrl);
@@ -44,16 +43,21 @@ async function requestApi () {
             list: results
         };
     }
+    return null;
 }
 
 async function requestFunc (url) {
     return new Promise ((resolve, reject) => {
         request(url, function (error, response, body) {
-            const moreData = JSON.parse(response.body);
-            if (moreData.d && moreData.d.entrylist) {
-                resolve(moreData.d.entrylist);
+            if (response && response.body) {
+                const moreData = JSON.parse(response.body);
+                if (moreData.d && moreData.d.entrylist) {
+                    resolve(moreData.d.entrylist);
+                }
+                resolve(null);
+            } else {
+                reject('掘金接口出错')
             }
-            resolve(null);
         })
     })
 }
