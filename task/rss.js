@@ -90,12 +90,10 @@ function setPushSchedule () {
     });
 
     schedule.scheduleJob('00 00 09 * * 5', () => {
-        if (sourceList.length) {
-            // Weekly 抓取任务
-            log.info('rss schedule weekly fire at ' + new Date());
-            isWeeklyTask = true;
-            activateFetchTask();
-        }
+        // Weekly 抓取任务
+        log.info('rss schedule weekly fire at ' + new Date());
+        isWeeklyTask = true;
+        activateFetchTask();
     });
 }
 
