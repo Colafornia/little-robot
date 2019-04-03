@@ -1,4 +1,7 @@
 # Deprecated
+
+**推送服务已暂停**，汇总推送历史可在 [Issue](https://github.com/Colafornia/little-robot/issues) 中查看
+
 # little-robot
 一些练习、自用的脚本
 
@@ -17,10 +20,6 @@
 每周推送汇总位于 [issues](https://github.com/Colafornia/little-robot/issues)
 
 目前订阅源主要为前端资讯，均为个人口味，欢迎新的订阅源推荐
-
-**扫码即可获得推送服务：**
-
-<img src="https://i.loli.net/2018/09/05/5b8fa082db070.png" width="250">
 
 Telegram channel: https://t.me/fedailypush
 
